@@ -36,7 +36,10 @@ def load_artifacts():
 business_metadata,train_data, liked_by_user, tfidf, X_items, bid_to_row, row_to_bid = load_artifacts()
 
 st.set_page_config(layout="wide")
-st.title("🍽️ Yelp Restaurant Recommendation System")
+st.markdown(
+    "<h3 style='text-align: center; color: #333; font-weight: 700;'>🍽️ Yelp Restaurant Recommendation System</h3>",
+    unsafe_allow_html=True
+)
 
 YELP_LOGO = "https://upload.wikimedia.org/wikipedia/commons/a/ad/Yelp_Logo.svg"   # or a URL to the logo
 
@@ -44,7 +47,10 @@ with st.sidebar:
     # Display the logo (centered)
     st.markdown(
         f"""
-        <div style="text-align:center; padding-top:10px; padding-bottom:10px;">
+        <div style="text-align:center; padding-top:10px;">
+            <h2 style="color:#FF0000; font-family:'Montserrat', sans-serif; margin-bottom:4px;">
+                PHILADELPHIA
+            </h2>
             <img src="{YELP_LOGO}" alt="Yelp Logo" width="100">
         </div>
         """,
@@ -62,15 +68,15 @@ with st.sidebar:
      
     snap = compute_user_snapshot(user_id, train_data, business_metadata)
 
-    st.markdown("### 🍽️ Your Dining Snapshot")
+    st.markdown("## 🍽️ Your Dining Snapshot")
 
     # Snapshot metrics (now stacked vertically)
-    st.metric("🌍  Most Tried Cuisine", snap["top_cuisine"].title() if snap["top_cuisine"] != "—" else "—")
+    st.metric("🌍  Most Enjoyed Cuisine", snap["top_cuisine"].title() if snap["top_cuisine"] != "—" else "—")
     st.metric("🥇  Go-To Dish", snap["fav_dish"].title() if snap["fav_dish"] != "—" else "—")
-    st.metric("⭐  Average Rating", f'{snap["avg_rating"]:.1f}' if not np.isnan(snap["avg_rating"]) else "—")
+    st.metric("⭐  Your Average Rating", f'{snap["avg_rating"]:.1f}' if not np.isnan(snap["avg_rating"]) else "—")
     st.metric("📍  Total Venues Explored", f'{snap["total_places"]}')
-    st.metric("❤️  Favorite Restaurant", snap["fav_restaurant"] if snap["fav_restaurant"] != "—" else "—")
-    st.metric("⏱️  Visits per Month", f"{snap['visits_per_month']} visits/month" if snap["visits_per_month"] == snap["visits_per_month"] else "—")
+    st.metric("❤️  Top-Rated Restaurant", snap["fav_restaurant"] if snap["fav_restaurant"] != "—" else "—")
+    st.metric("⏱️  Monthly Dining Frequency", f"{snap['visits_per_month']} visits/month" if snap["visits_per_month"] == snap["visits_per_month"] else "—")
 
     st.markdown("---")
 
@@ -96,7 +102,7 @@ with st.sidebar:
 
 user_name = get_user_name(user_id,train_data)
 if user_name:
-    st.subheader(f"👋 Welcome back, {user_name} !")
+    st.subheader(f"👋 Welcome {user_name} !")
 #st.markdown("Enter your **User ID** to see your top recommendations based on your preferences.")
 
 col_a, col_b = st.columns([1, 1], gap="small")
@@ -182,7 +188,22 @@ if user_id:
 
     # --- display section ---
     if revisit_recs is not None and not revisit_recs.empty:
-        st.success("Your personalized restaurant recommendations : discover new places tailored to your tastes.")
+        st.markdown(
+            """
+            <div style="
+                background-color:#D7FF6105;
+                padding:15px 20px;
+                border-radius:8px;
+                border:1px solid #B2D8B2;
+                font-size:16px;
+                line-height:1.6;
+                color:#155724;">
+                🍽️ <strong>Your personalized restaurant recommendations:</strong><br><br>
+                Food lovers with preferences like yours enjoyed these spots , you might like them too!
+            </div>
+            """,
+            unsafe_allow_html=True
+            )
         # Build a display-only copy
         show = revisit_recs.copy()
 
@@ -210,25 +231,17 @@ if user_id:
             use_container_width=True,
             hide_index=True,
             column_config={
-                "Restaurant": st.column_config.TextColumn("Restaurant", width="large"),
-                "Cuisines": st.column_config.TextColumn("Cuisines", width="medium"),
-                "Venue": st.column_config.TextColumn("Venue", width="medium"),
+                "Restaurant": st.column_config.TextColumn("Restaurant", width="medium"),
+                "Cuisines": st.column_config.TextColumn("Cuisines", width="small"),
+                "Venue": st.column_config.TextColumn("Venue", width="small"),
                 "Recommendation Score": st.column_config.NumberColumn(
-                    "Recommendation Score", format="%.2f", min_value=0.0, max_value=1.0
+                    "Recommendation Score", format="%.2f", min_value=0.0, max_value=1.0,width="small"
                 ),
                 #"Indicator": st.column_config.TextColumn("", width="small"),
                 "Why You'll Love It": st.column_config.TextColumn("Why You'll Love It", width="stretch"),
             },
         )
 
-        # Optional explanation of top pick
-        top_idx = show["score"].idxmax()
-        top_restaurant = show.loc[top_idx, "Restaurant"]
-        top_score = show.loc[top_idx, "score"]
-        st.caption(
-            f"Your top recommendation is **{top_restaurant}** (similarity score {top_score:.2f}). "
-            "These results are based on restaurants you rated highly, especially from similar cuisines and venue types."
-        )
     else:
         st.warning("No recommendations found for this user.")
 else:

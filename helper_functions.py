@@ -233,7 +233,7 @@ def plot_user_cuisine_distribution(user_id, train_data, business_metadata):
 
     # Plot
     fig, ax = plt.subplots(figsize=(10, 5))
-    ax.bar(cuisine_counts["Cuisine"], cuisine_counts["Visits"], color="#D7FF61F1",edgecolor="black")
+    ax.bar(cuisine_counts["Cuisine"], cuisine_counts["Visits"], color="#D7FF61D7",edgecolor="black")
     ax.set_xlabel("Number of Visits",fontsize=12)
     ax.set_ylabel("Cuisine",fontsize=12)
     ax.set_title(f"Your Top 5 Go-To Cuisines",fontsize=15,fontweight='bold')
