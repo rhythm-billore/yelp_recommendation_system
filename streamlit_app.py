@@ -6,6 +6,7 @@ import numpy as np
 import joblib
 import scipy.sparse as sp
 from sklearn.metrics.pairwise import cosine_similarity
+
 from helper_functions import (
     user_vector,
     recommend_content,
@@ -19,6 +20,8 @@ from helper_functions import (
     rec_plain,
     compute_user_snapshot,
     plot_user_cuisine_distribution)
+
+st.set_page_config(layout="wide")
 
 art = "artifacts"
 
@@ -35,7 +38,7 @@ def load_artifacts():
 
 business_metadata,train_data, liked_by_user, tfidf, X_items, bid_to_row, row_to_bid = load_artifacts()
 
-st.set_page_config(layout="wide")
+
 st.markdown(
     "<h3 style='text-align: center; color: #333; font-weight: 700;'>🍽️ Yelp Restaurant Recommendation System</h3>",
     unsafe_allow_html=True
