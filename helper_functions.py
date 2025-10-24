@@ -3,7 +3,6 @@ import pandas as pd
 import ast
 from sklearn.metrics.pairwise import cosine_similarity
 from collections import Counter
-import plotly.express as px
 import matplotlib.pyplot as plt
 
 def user_vector(user_id,train_data,bid_to_row,X_items,like_threshold=4):
