@@ -6,7 +6,10 @@ from collections import Counter
 import matplotlib.pyplot as plt
 
 def user_vector(user_id,train_data,bid_to_row,X_items,like_threshold=4):
-    
+    """
+    Build a user's preference vector by averaging item embeddings
+    for all restaurants they rated above the like_threshold.
+    """
     liked_by_user = (
     train_data[train_data['stars_review'] >= like_threshold]
     .groupby('user_id')['business_id']
@@ -24,6 +27,9 @@ def user_vector(user_id,train_data,bid_to_row,X_items,like_threshold=4):
 
 
 def recommend_content(user_id,X_items,business_metadata,train_data,bid_to_row,prefer_same_city=True):
+    """
+    Recommend restaurants similar to the user's preferences using cosine similarity.
+    """
     u_vec = user_vector(user_id, train_data, bid_to_row, X_items)                       # 1) user taste vector
     if u_vec is None:
         return pd.DataFrame()                         
@@ -67,6 +73,9 @@ def get_user_name(user_id,train_data):
 
 
 def user_history(user_id, train_data, business_metadata):
+    """
+    Retrieve full history of restaurants reviewed by a user, including metadata.
+    """
     user_activity = (train_data[train_data['user_id']==user_id]
             .sort_values('date', ascending=False)
             .merge(business_metadata[['business_id','name','city','cuisines','venue_type']],
@@ -74,6 +83,9 @@ def user_history(user_id, train_data, business_metadata):
     return user_activity
 
 def user_recent_visited(user_id, train_data, business_metadata, n=5):
+    """
+    Get the most recent n unique restaurants visited by a user.
+    """
     hist = user_history(user_id, train_data, business_metadata)
     # last N unique places by most recent review
     recent = (hist.drop_duplicates('business_id', keep='first')
@@ -81,6 +93,10 @@ def user_recent_visited(user_id, train_data, business_metadata, n=5):
     return recent
 
 def rerank_with_cuisine_caps(df, k=10, cap_per_cuisine=3):
+    """
+    Limit recommendations to ensure cuisine diversity.
+    Select top k restaurants, capping the number of recommendations per cuisine.
+    """
     # df: columns include ["name","score","cuisines" or "cuisine_list"]
     # pick a single primary cuisine for capping
     def primary_cuisine(row):
@@ -125,15 +141,18 @@ def _to_list(x):
     return [t.strip() for t in s.split(",") if t.strip()]
 
 def _flatten(xs):
+    """Flatten nested lists and convert all elements to lowercase strings."""
     out = []
     for x in xs or []:
         out.extend(x if isinstance(x, list) else [x])
     return [str(t).lower() for t in out if str(t).strip()]
 
 def _list_to_text(x):
+    """Convert list-like data into a comma-separated string."""
     return ", ".join(_flatten(_to_list(x)))
 
 def rec_plain(score: float) -> str:
+    """Return a simple text explanation for a recommendation score."""
     if score >= 0.70:
         return "🌟 Top match - a great fit for your tastes!"
     if score >= 0.40:
@@ -141,6 +160,14 @@ def rec_plain(score: float) -> str:
     return "Wildcard pick - worth exploring for a new experience"
 
 def compute_user_snapshot(user_id, train_data, business_metadata):
+    """
+    Compute a user's overall activity summary:
+    - Most tried cuisine and favorite dish
+    - Average rating given
+    - Total unique restaurants visited
+    - Favorite restaurant based on visits and ratings
+    - Estimated visit frequency per month
+    """
     # Join user history with metadata you need
     hist = (train_data[train_data["user_id"] == user_id]
               .merge(business_metadata[["business_id", "cuisines", "food_type"]],

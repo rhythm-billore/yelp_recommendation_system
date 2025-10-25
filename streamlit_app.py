@@ -202,7 +202,7 @@ if user_id:
                 line-height:1.6;
                 color:#155724;">
                 🍽️ <strong>Your personalized restaurant recommendations:</strong><br><br>
-                Food lovers with preferences like yours enjoyed these spots , you might like them too!
+                Based on your dining history and preferences, here are restaurants that closely match your taste.
             </div>
             """,
             unsafe_allow_html=True
